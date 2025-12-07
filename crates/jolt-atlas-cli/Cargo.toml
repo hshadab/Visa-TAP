@@ -1,0 +1,38 @@
+[package]
+name = "jolt-atlas-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "JOLT-Atlas zkML CLI for Visa TAP integration"
+
+[[bin]]
+name = "jolt-atlas"
+path = "src/main.rs"
+
+[dependencies]
+# Internal
+zkml-jolt = { workspace = true }
+zkml-tap = { workspace = true }
+
+# CLI
+clap = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Utilities
+hex = { workspace = true }
+base64 = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

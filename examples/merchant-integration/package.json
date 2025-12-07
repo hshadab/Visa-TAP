@@ -1,0 +1,19 @@
+{
+  "name": "merchant-integration-example",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@icme/zkml-verifier": "^0.1.0",
+    "@visa-tap/cdn-proxy-zkml": "^0.1.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  }
+}

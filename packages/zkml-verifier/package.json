@@ -1,0 +1,31 @@
+{
+  "name": "@icme/zkml-verifier",
+  "version": "0.1.0",
+  "description": "Lightweight JOLT-Atlas zkML verifier for merchants",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "zkml",
+    "zero-knowledge",
+    "verifier",
+    "visa",
+    "tap"
+  ],
+  "author": "ICME Labs <dev@icme.io>",
+  "license": "MIT",
+  "dependencies": {
+    "@icme/jolt-atlas": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,13 @@
+[package]
+name = "agent-integration-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+zkml-jolt = { path = "../../crates/zkml-jolt" }
+zkml-tap = { path = "../../crates/zkml-tap" }
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
