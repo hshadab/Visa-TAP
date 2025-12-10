@@ -1,8 +1,29 @@
 /**
  * JOLT-Atlas proof generation
+ *
+ * ⚠️ WARNING: MOCK IMPLEMENTATION
+ *
+ * This module contains **mock implementations** for demonstration purposes.
+ * The following methods do NOT perform real cryptographic operations:
+ *
+ * - `executeInference()` - Returns deterministic mock outputs, not actual ML inference
+ * - `generateZkProof()` - Creates mock proof structure, not real ZK proofs
+ * - `generateTransparentProof()` - Creates mock transparent proofs
+ *
+ * **DO NOT USE IN PRODUCTION** without integrating real:
+ * - ONNX.js or TensorFlow.js for model inference
+ * - Actual ZK proving system
+ *
+ * Set ZKML_MOCK_WARNING=false to suppress runtime warnings.
  */
 
 import { keccak256 } from 'js-sha3';
+
+/**
+ * Environment flag to suppress mock warnings
+ */
+const SUPPRESS_MOCK_WARNING = process.env.ZKML_MOCK_WARNING === 'false';
+let mockWarningShown = false;
 import {
   CommitmentGenerator,
   createInputCommitment,
@@ -119,10 +140,22 @@ export class JoltAtlas {
 
   /**
    * Execute model inference (simulated)
+   *
+   * ⚠️ WARNING: This is a MOCK implementation that returns deterministic fake outputs.
+   * It does NOT run actual model inference.
+   *
+   * For production, integrate with ONNX.js, TensorFlow.js, or similar.
    */
   private async executeInference(input: Buffer): Promise<InferenceOutput> {
-    // In production, this would run actual model inference
-    // For now, we simulate with deterministic output
+    // Show warning once
+    if (!mockWarningShown && !SUPPRESS_MOCK_WARNING) {
+      mockWarningShown = true;
+      console.warn(
+        '[ZKML WARNING] Using MOCK inference implementation. ' +
+        'This generates FAKE proofs and is NOT suitable for production. ' +
+        'Set ZKML_MOCK_WARNING=false to suppress this warning.'
+      );
+    }
 
     const combined = Buffer.concat([this.modelBytes, input]);
     const resultHash = keccak256(combined);
@@ -148,13 +181,18 @@ export class JoltAtlas {
 
   /**
    * Generate zero-knowledge proof
+   *
+   * ⚠️ WARNING: This is a MOCK implementation that creates fake proof structures.
+   * It does NOT generate real cryptographic proofs.
+   *
+   * These proofs can be trivially forged and provide NO security guarantees.
    */
   private async generateZkProof(
     input: Buffer,
     output: InferenceOutput
   ): Promise<Buffer> {
-    // In production, this would use JOLT/HyperNova for real ZK proof
-    // For now, we create a mock proof structure
+    // WARNING: MOCK IMPLEMENTATION
+    // Real implementation would use JOLT/HyperNova for actual ZK proofs
 
     const header = Buffer.from('JOLT-ATLAS-ZK-V1');
     const securityLevel = Buffer.alloc(4);

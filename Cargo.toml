@@ -35,10 +35,14 @@ http = "1.0"
 hyper = { version = "1.0", features = ["full"] }
 
 # CLI
-clap = { version = "4.4", features = ["derive"] }
+clap = { version = "4.4", features = ["derive", "env"] }
 
 # Testing
 proptest = "1.4"
+tempfile = "3.10"
+
+# Utilities
+num_cpus = "1.16"
 
 # Internal crates
 zkml-jolt = { path = "crates/zkml-jolt" }

@@ -2,6 +2,21 @@
 //!
 //! Generates zero-knowledge proofs that a specific ML model produced
 //! a specific output from a specific input.
+//!
+//! # WARNING: Mock Implementation
+//!
+//! This module currently contains **mock implementations** for demonstration purposes.
+//! The following functions do NOT perform real cryptographic operations:
+//!
+//! - `execute_inference()` - Returns deterministic mock outputs, not actual ML inference
+//! - `generate_zk_proof()` - Creates mock proof structure, not real ZK proofs
+//! - `generate_transparent_proof()` - Creates mock transparent proofs
+//!
+//! **DO NOT USE IN PRODUCTION** without integrating real:
+//! - ONNX Runtime or equivalent for model inference
+//! - JOLT/HyperNova for actual ZK proof generation
+//!
+//! See the `real-inference` feature flag for production integration points.
 
 use crate::{
     CommitmentGenerator, DecisionType, Error, InferenceOutput, InputCommitment, JoltAtlasProof,
@@ -11,7 +26,7 @@ use rayon::prelude::*;
 use sha3::{Digest, Keccak256};
 use std::path::Path;
 use std::time::Instant;
-use tracing::{debug, info, instrument};
+use tracing::{debug, info, instrument, warn};
 
 /// JOLT-Atlas prover for generating zkML proofs
 ///
@@ -216,13 +231,27 @@ impl JoltAtlas {
     }
 
     /// Execute model inference and capture execution trace
+    ///
+    /// # Warning
+    ///
+    /// This is a **MOCK IMPLEMENTATION** that returns deterministic fake outputs.
+    /// It does NOT run actual model inference.
+    ///
+    /// For production use, integrate with:
+    /// - `onnxruntime` crate for ONNX models
+    /// - `tensorflow` crate for TensorFlow models
+    /// - `tch` crate for PyTorch models
+    #[cfg(not(feature = "real-inference"))]
     fn execute_inference(&self, input: &[u8]) -> Result<(InferenceOutput, ExecutionTrace)> {
-        // In production, this would:
-        // 1. Deserialize input into model format
-        // 2. Run actual inference using ONNX runtime or similar
-        // 3. Capture execution trace for proving
-        //
-        // For now, we simulate with a deterministic mock
+        // Log warning on first use
+        static WARNED: std::sync::Once = std::sync::Once::new();
+        WARNED.call_once(|| {
+            warn!(
+                "MOCK INFERENCE: Using simulated model inference. \
+                 This is NOT suitable for production. \
+                 Enable 'real-inference' feature for actual ML execution."
+            );
+        });
 
         let mut hasher = Keccak256::new();
         hasher.update(&self.model.bytes);
@@ -256,6 +285,14 @@ impl JoltAtlas {
     }
 
     /// Generate zero-knowledge proof using HyperNova
+    ///
+    /// # Warning
+    ///
+    /// This is a **MOCK IMPLEMENTATION** that creates fake proof structures.
+    /// It does NOT generate real cryptographic proofs.
+    ///
+    /// For production use, integrate with actual JOLT/HyperNova implementation.
+    #[cfg(not(feature = "real-inference"))]
     fn generate_zk_proof(
         &self,
         trace: &ExecutionTrace,
@@ -263,16 +300,15 @@ impl JoltAtlas {
     ) -> Result<Vec<u8>> {
         let params = params.cloned().unwrap_or_default();
         debug!(
-            "Generating ZK proof with security level {}",
+            "MOCK: Generating fake ZK proof with security level {}",
             params.security_level
         );
 
-        // In production, this would:
+        // WARNING: This generates FAKE proofs that can be trivially forged.
+        // Real implementation would:
         // 1. Convert execution trace to R1CS constraints
         // 2. Apply HyperNova folding scheme
-        // 3. Generate succinct proof
-        //
-        // For now, we generate a deterministic mock proof
+        // 3. Generate cryptographically secure succinct proof
 
         let mut proof_data = Vec::new();
 

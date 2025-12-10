@@ -121,11 +121,20 @@ router.post('/models', async (req: Request, res: Response) => {
       });
     }
 
-    // Validate API key (placeholder)
-    if (!zkmlService.validateApiKey(apiKey)) {
-      return res.status(403).json({
-        error: 'Invalid API key',
-        error_code: 'FORBIDDEN',
+    // Validate API key
+    try {
+      if (!zkmlService.validateApiKey(apiKey)) {
+        return res.status(403).json({
+          error: 'Invalid API key',
+          error_code: 'FORBIDDEN',
+        });
+      }
+    } catch (error) {
+      // API key validation not configured for production
+      console.error('API key validation error:', error);
+      return res.status(503).json({
+        error: 'API key validation service not configured',
+        error_code: 'SERVICE_UNAVAILABLE',
       });
     }
 

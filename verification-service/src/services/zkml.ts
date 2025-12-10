@@ -9,6 +9,20 @@ import {
   currentTimestamp,
 } from '@icme/jolt-atlas';
 
+/**
+ * Environment configuration
+ */
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PRODUCTION = NODE_ENV === 'production';
+
+/**
+ * API key configuration
+ * In production, API_KEYS should be set via environment variable as a comma-separated list
+ * Example: API_KEYS="key1,key2,key3"
+ */
+const CONFIGURED_API_KEYS = process.env.API_KEYS?.split(',').map(k => k.trim()).filter(Boolean) || [];
+const ALLOW_INSECURE_API_VALIDATION = process.env.ALLOW_INSECURE_API_VALIDATION === 'true';
+
 export interface VerifyResult {
   valid: boolean;
   modelCommitment?: string;
@@ -176,12 +190,46 @@ export class ZkmlVerificationService {
   }
 
   /**
-   * Validate API key (placeholder implementation)
+   * Validate API key
+   *
+   * In production mode:
+   * - Requires API_KEYS environment variable to be set
+   * - Validates against the configured list of API keys
+   *
+   * In development mode:
+   * - Accepts any key >= 32 characters (unless ALLOW_INSECURE_API_VALIDATION=true in production)
+   *
+   * @throws Error if production mode and no API keys are configured
    */
   validateApiKey(apiKey: string): boolean {
-    // In production, this would validate against a real API key store
-    // For now, accept any key that looks valid
-    return apiKey.length >= 32;
+    // Basic length check
+    if (!apiKey || apiKey.length < 32) {
+      return false;
+    }
+
+    // If we have configured API keys, always use them
+    if (CONFIGURED_API_KEYS.length > 0) {
+      return CONFIGURED_API_KEYS.includes(apiKey);
+    }
+
+    // Production safety check
+    if (IS_PRODUCTION && !ALLOW_INSECURE_API_VALIDATION) {
+      console.error(
+        '[SECURITY] API key validation attempted in production without configured API_KEYS. ' +
+        'Set API_KEYS environment variable with valid keys, or set ALLOW_INSECURE_API_VALIDATION=true to bypass (NOT RECOMMENDED).'
+      );
+      throw new Error('API key validation not configured for production');
+    }
+
+    // Development mode: warn and accept any key >= 32 characters
+    if (!IS_PRODUCTION) {
+      console.warn(
+        '[DEV WARNING] Using insecure API key validation. ' +
+        'Set API_KEYS environment variable for secure validation.'
+      );
+    }
+
+    return true;
   }
 
   /**

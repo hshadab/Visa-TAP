@@ -11,6 +11,9 @@ description = "JOLT-Atlas zkML proof generation and verification library"
 default = ["std"]
 std = []
 wasm = ["wasm-bindgen", "js-sys"]
+# Enable this feature when integrating real ML inference runtime
+# This disables mock implementations and requires actual ONNX/TF/PyTorch integration
+real-inference = []
 
 [dependencies]
 # Serialization
@@ -40,6 +43,10 @@ js-sys = { version = "0.3", optional = true }
 # Parallel processing
 rayon = "1.8"
 
+# Utilities
+num_cpus = { workspace = true }
+
 [dev-dependencies]
 proptest = { workspace = true }
+tempfile = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
