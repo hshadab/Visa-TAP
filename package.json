@@ -13,6 +13,7 @@
     "packages/*",
     "cdn-proxy",
     "verification-service",
+    "demo-frontend",
     "examples/*"
   ],
   "scripts": {
