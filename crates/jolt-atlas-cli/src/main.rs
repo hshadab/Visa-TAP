@@ -8,7 +8,7 @@
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 use zkml_jolt::{CommitmentGenerator, JoltAtlas, JoltAtlasVerifier, ProofConfig, VerifierConfig};
@@ -219,7 +219,7 @@ fn cmd_commit(model: &PathBuf, output: &PathBuf, version: &str, format: OutputFo
 fn cmd_prove(
     model: &PathBuf,
     input: &PathBuf,
-    commitment: Option<&PathBuf>,
+    commitment: Option<&Path>,
     output: &PathBuf,
     zk: bool,
     threshold: u64,

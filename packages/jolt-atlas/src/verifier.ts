@@ -37,7 +37,7 @@ export class JoltAtlasVerifier {
   async loadRegistry(registryUrl: string): Promise<number> {
     try {
       const response = await fetch(registryUrl);
-      const models: RegisteredModel[] = await response.json();
+      const models = (await response.json()) as RegisteredModel[];
 
       for (const model of models) {
         this.registeredModels.set(model.commitment, model);

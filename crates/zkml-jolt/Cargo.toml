@@ -39,7 +39,9 @@ js-sys = { version = "0.3", optional = true }
 
 # Parallel processing
 rayon = "1.8"
+num_cpus = "1.16"
 
 [dev-dependencies]
 proptest = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+tempfile = "3.10"
