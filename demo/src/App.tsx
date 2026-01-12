@@ -19,6 +19,15 @@ import {
 } from './lib/prover'
 import type { ProveResponse } from './lib/types'
 import { PROVER_CONFIG } from './lib/config'
+import {
+  transferUsdc,
+  attestProof,
+  getBalance,
+  getExplorerUrl,
+  demoAccount,
+  CONTRACTS,
+  TAP_AGENT_ID,
+} from './lib/wallet'
 
 // Types
 interface Transaction {
@@ -49,6 +58,10 @@ interface ProofState {
   modelInput?: SpendingModelInput
   // Whether we used real prover or simulation
   isRealProof?: boolean
+  // Real on-chain transaction data
+  attestationTxHash?: string
+  transferTxHash?: string
+  isRealTransaction?: boolean
 }
 
 interface VerificationState {
@@ -186,7 +199,11 @@ function App() {
   const [proverStatus, setProverStatus] = useState<'checking' | 'online' | 'offline'>('checking')
   const [proverError, setProverError] = useState<string | null>(null)
 
-  // Check prover health on mount
+  // Real on-chain transactions state
+  const [useRealTransactions, setUseRealTransactions] = useState(false)
+  const [walletBalance, setWalletBalance] = useState<string | null>(null)
+
+  // Check prover health and wallet balance on mount
   useEffect(() => {
     const checkHealth = async () => {
       try {
@@ -199,7 +216,17 @@ function App() {
         setProverError(err instanceof Error ? err.message : 'Prover unavailable')
       }
     }
+    const checkBalance = async () => {
+      try {
+        const balance = await getBalance()
+        setWalletBalance(balance)
+      } catch (err) {
+        console.error('Failed to get wallet balance:', err)
+        setWalletBalance(null)
+      }
+    }
     checkHealth()
+    checkBalance()
   }, [])
 
   // Add activity log entry
@@ -338,43 +365,95 @@ function App() {
     )
   }, [addLogEntry, useRealProver, proverStatus])
 
-  // Simulate verification with Arc check
+  // Verification with optional real on-chain transactions
   const simulateVerification = useCallback(async () => {
-    const stages: VerificationState['stage'][] = ['receiving', 'checking_registry', 'verifying_proof', 'checking_arc', 'complete']
-    const durations = [150, 150, 200, 150, 0]
-    const stageMessages = [
-      { msg: 'Receiving proof and TAP signature...', detail: 'HTTP Message Signature verified' },
-      { msg: 'Checking Visa Model Registry...', detail: 'Model commitment lookup' },
-      { msg: 'Verifying cryptographic proof...', detail: 'JOLT-Atlas verification' },
-      { msg: 'Confirming Arc anchor...', detail: 'Blockchain verification' },
-      { msg: 'Full verification complete!', detail: 'Identity + Execution verified' },
-    ]
+    let attestationTxHash: string | undefined
+    let transferTxHash: string | undefined
+    let isRealTransaction = false
 
-    for (let i = 0; i < stages.length; i++) {
-      const stage = stages[i]
-      addLogEntry(stage === 'complete' ? 'success' : 'verify', stageMessages[i].msg, stageMessages[i].detail)
+    // Stage 1: Receiving
+    setVerification(prev => ({ ...prev, stage: 'receiving' }))
+    addLogEntry('verify', 'Receiving proof and TAP signature...', 'HTTP Message Signature verified')
+    await new Promise(r => setTimeout(r, 150))
 
-      if (stage === 'complete') {
-        setVerification({
-          stage: 'complete',
-          status: 'valid',
-          modelRegistered: true,
-          proofFresh: true,
-          cryptoValid: true,
-          arcAnchored: true,
-        })
-      } else {
-        setVerification(prev => ({
-          ...prev,
-          stage,
-          modelRegistered: stage === 'verifying_proof' || stage === 'checking_arc' ? true : prev.modelRegistered,
-          cryptoValid: stage === 'checking_arc' ? true : prev.cryptoValid,
-        }))
+    // Stage 2: Check registry
+    setVerification(prev => ({ ...prev, stage: 'checking_registry', modelRegistered: true }))
+    addLogEntry('verify', 'Checking Visa Model Registry...', 'Model commitment lookup')
+    await new Promise(r => setTimeout(r, 150))
+
+    // Stage 3: Verify proof (and optionally attest on-chain)
+    setVerification(prev => ({ ...prev, stage: 'verifying_proof' }))
+
+    if (useRealTransactions && walletBalance && parseFloat(walletBalance) >= 0.02) {
+      addLogEntry('verify', 'Attesting proof + agent identity on Arc...', 'WHO + WHAT + HOW anchored on-chain')
+      try {
+        const result = await attestProof(
+          proof.inputHash || '0x0',
+          proof.commitment || '0x0',
+          proof.outputHash || '0x0',
+          TAP_AGENT_ID  // Anchor agent identity on-chain
+        )
+        attestationTxHash = result.hash
+        isRealTransaction = true
+        addLogEntry('success', 'Agent + Proof attested on-chain!', result.explorerUrl)
+      } catch (err) {
+        addLogEntry('warning', 'Attestation failed, continuing with simulation', err instanceof Error ? err.message : 'Unknown error')
       }
-
-      await new Promise(r => setTimeout(r, durations[i]))
+    } else {
+      addLogEntry('verify', 'Verifying cryptographic proof...', 'JOLT-Atlas verification')
+      await new Promise(r => setTimeout(r, 200))
     }
-  }, [addLogEntry])
+
+    setVerification(prev => ({ ...prev, cryptoValid: true }))
+
+    // Stage 4: Arc anchor (and optionally transfer USDC)
+    setVerification(prev => ({ ...prev, stage: 'checking_arc' }))
+
+    if (useRealTransactions && walletBalance && parseFloat(walletBalance) >= 0.01) {
+      addLogEntry('arc', 'Transferring $0.01 USDC on Arc Testnet...', 'REAL settlement')
+      try {
+        const result = await transferUsdc(CONTRACTS.demoMerchant, 0.01)
+        transferTxHash = result.hash
+        isRealTransaction = true
+        addLogEntry('success', 'USDC transferred on-chain!', result.explorerUrl)
+        // Refresh balance
+        const newBalance = await getBalance()
+        setWalletBalance(newBalance)
+      } catch (err) {
+        addLogEntry('warning', 'Transfer failed', err instanceof Error ? err.message : 'Unknown error')
+      }
+    } else {
+      addLogEntry('verify', 'Confirming Arc anchor...', 'Blockchain verification')
+      await new Promise(r => setTimeout(r, 150))
+    }
+
+    // Stage 5: Complete
+    setVerification({
+      stage: 'complete',
+      status: 'valid',
+      modelRegistered: true,
+      proofFresh: true,
+      cryptoValid: true,
+      arcAnchored: true,
+    })
+
+    // Update proof with transaction hashes
+    if (isRealTransaction) {
+      setProof(prev => ({
+        ...prev,
+        attestationTxHash,
+        transferTxHash,
+        isRealTransaction,
+        arcTxHash: transferTxHash || attestationTxHash || prev.arcTxHash,
+      }))
+    }
+
+    addLogEntry(
+      'success',
+      'Full verification complete!',
+      isRealTransaction ? 'REAL on-chain transactions on Arc Testnet' : 'Identity + Execution verified'
+    )
+  }, [addLogEntry, useRealTransactions, walletBalance, proof.inputHash, proof.commitment, proof.outputHash])
 
   // Simulate model substitution attack
   const simulateAttack = useCallback(async () => {
@@ -517,6 +596,22 @@ function App() {
           </label>
           <span className={`prover-status ${proverStatus}`}>
             {proverStatus === 'checking' ? '...' : proverStatus === 'online' ? '●' : '○'}
+          </span>
+        </div>
+
+        {/* Real On-Chain Toggle */}
+        <div className="prover-toggle">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={useRealTransactions}
+              onChange={(e) => setUseRealTransactions(e.target.checked)}
+              disabled={!walletBalance || parseFloat(walletBalance) < 0.01}
+            />
+            <span className="toggle-text">Real Tx</span>
+          </label>
+          <span className={`prover-status ${walletBalance && parseFloat(walletBalance) >= 0.01 ? 'online' : 'offline'}`}>
+            {walletBalance ? `$${parseFloat(walletBalance).toFixed(2)}` : '...'}
           </span>
         </div>
       </div>
@@ -684,6 +779,7 @@ function App() {
                         <span className="check-icon">✓</span>
                         Proof Generated in <strong>{typeof proof.generationTime === 'number' ? proof.generationTime.toFixed(1) : proof.generationTime}s</strong>
                         {proof.isRealProof && <span className="real-proof-badge">REAL SNARK</span>}
+                        {proof.isRealTransaction && <span className="real-proof-badge">REAL TX</span>}
                       </div>
                       <div className="proof-details">
                         <div className="detail-row">
@@ -698,9 +794,33 @@ function App() {
                           <span>Proof Size:</span>
                           <span>~{Math.round((proof.proofSize || 0) / 1000)}KB SNARK</span>
                         </div>
+                        {proof.isRealTransaction && proof.attestationTxHash && (
+                          <div className="detail-row arc-row">
+                            <span>Attestation:</span>
+                            <a
+                              href={`https://testnet.arcscan.app/tx/${proof.attestationTxHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="tx-link"
+                            >
+                              {proof.attestationTxHash.slice(0, 14)}... ↗
+                            </a>
+                          </div>
+                        )}
                         <div className="detail-row arc-row">
-                          <span>Arc Tx:</span>
-                          <span className="mono">{proof.arcTxHash?.slice(0, 20)}...</span>
+                          <span>{proof.isRealTransaction ? 'Transfer:' : 'Arc Tx:'}</span>
+                          {proof.isRealTransaction && proof.transferTxHash ? (
+                            <a
+                              href={`https://testnet.arcscan.app/tx/${proof.transferTxHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="tx-link"
+                            >
+                              {proof.transferTxHash.slice(0, 14)}... ↗
+                            </a>
+                          ) : (
+                            <span className="mono">{proof.arcTxHash?.slice(0, 20)}...</span>
+                          )}
                         </div>
                       </div>
                       <button className="inspect-proof-btn" onClick={() => setShowProofInspector(true)}>

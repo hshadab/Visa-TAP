@@ -59,6 +59,36 @@ npm install
 npm run dev
 ```
 
+### Real On-Chain Transactions
+
+The demo supports **real on-chain transactions** on Arc Testnet. Enable "Real Tx" toggle to:
+
+| Transaction | What's Anchored | On-Chain |
+|-------------|-----------------|----------|
+| **Attestation** | WHO (agentId) + WHAT (inputHash) + HOW (proofHash, modelHash) | ✓ Real |
+| **USDC Transfer** | $0.01 settlement to demo merchant | ✓ Real |
+
+**On-Chain Attestation Structure:**
+```solidity
+attestProofWithAgent(
+  bytes32 agentId,      // TAP agent identity (WHO)
+  bytes32 proofHash,    // SNARK proof hash (HOW)
+  bytes32 modelHash,    // Policy model commitment (WHAT model)
+  bytes32 inputHash     // Transaction inputs (WHAT data)
+)
+```
+
+**Contract Addresses (Arc Testnet):**
+| Contract | Address |
+|----------|---------|
+| USDC | `0x1Fb62895099b7931FFaBEa1AdF92e20Df7F29213` |
+| ProofAttestation | `0xBE9a5DF7C551324CB872584C6E5bF56799787952` |
+| SpendingGate | `0x6A47D13593c00359a1c5Fc6f9716926aF184d138` |
+
+**Demo Wallet:** `0xB624E375BBc7834201ff716516249d7eE99Ad362`
+
+View transactions on [Arc Testnet Explorer](https://testnet.arcscan.app)
+
 ## How It Works
 
 ### 1. Agent Certification

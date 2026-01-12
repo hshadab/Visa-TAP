@@ -2473,11 +2473,17 @@ body {
 
 .constraint {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.35rem;
   font-size: 0.6rem;
   font-family: 'Fira Code', monospace;
   color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.constraint span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -2525,6 +2531,20 @@ body {
 .decision-deny {
   color: var(--danger-red);
   font-weight: 600;
+}
+
+/* Transaction link */
+.tx-link {
+  color: var(--zkml-purple);
+  text-decoration: none;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  transition: color 0.2s;
+}
+
+.tx-link:hover {
+  color: var(--zkml-purple-light);
+  text-decoration: underline;
 }
 
 .constraint.fail .constraint-icon {
