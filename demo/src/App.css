@@ -2577,6 +2577,19 @@ body {
   font-size: 0.9rem;
 }
 
+/* Arc link in verification result */
+.arc-link {
+  color: var(--success-green);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.arc-link:hover {
+  color: #059669;
+  text-decoration: underline;
+}
+
 .constraint.fail .constraint-icon {
   color: var(--danger-red);
   font-weight: bold;

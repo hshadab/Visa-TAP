@@ -906,7 +906,20 @@ function App() {
                             <p className="anchored-item"><span className="anchor-check">✓</span> WHO: Agent identity anchored</p>
                             <p className="anchored-item"><span className="anchor-check">✓</span> WHAT: Transaction inputs anchored</p>
                             <p className="anchored-item"><span className="anchor-check">✓</span> HOW: Policy proof anchored</p>
-                            <p className="arc-confirmed">All on Circle Arc Testnet</p>
+                            <p className="arc-confirmed">
+                              {proof.attestationTxHash ? (
+                                <a
+                                  href={`https://testnet.arcscan.app/tx/${proof.attestationTxHash}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="arc-link"
+                                >
+                                  View on Circle Arc Testnet ↗
+                                </a>
+                              ) : (
+                                'All on Circle Arc Testnet'
+                              )}
+                            </p>
                           </>
                         ) : (
                           <>
