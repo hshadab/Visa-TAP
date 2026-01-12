@@ -625,7 +625,7 @@ function App() {
               alt="Novanet Logo"
               className="header-logo"
             />
-            <h1 className="main-title">Per-Transaction Model Verification for Visa Trusted Agent Protocol</h1>
+            <h1 className="main-title">Spending Policy Compliance for Visa TAP</h1>
           </div>
         </div>
       </header>
@@ -1324,7 +1324,7 @@ function App() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-main">
-            <span className="footer-title">Per-Transaction Model Verification for Visa TAP</span>
+            <span className="footer-title">Spending Policy Compliance for Visa TAP</span>
             <span className="footer-tagline">TAP verifies WHO. zkML verifies WHAT and HOW.</span>
           </div>
           <div className="footer-links">

@@ -1,8 +1,8 @@
-# JOLT-Atlas zkML for Visa TAP
+# Spending Policy Compliance for Visa TAP
 
-**TAP solves agent identity. We solve model integrity.**
+**TAP verifies WHO. zkML verifies WHAT and HOW.**
 
-Model Verification for B2B USDC Settlements on Circle Arc
+Cryptographic proof that AI agents follow spending rules on Circle Arc
 
 ---
 
