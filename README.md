@@ -4,6 +4,8 @@
 
 Cryptographic proof that AI agents follow spending rules on Circle Arc
 
+Built with [JOLT-Atlas zero-knowledge machine learning](https://github.com/ICME-Lab/jolt-atlas)
+
 ---
 
 ## The Problem

@@ -263,6 +263,24 @@ body {
   color: var(--danger-red);
 }
 
+.copy-wallet-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.copy-wallet-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
 /* Header */
 .header {
   background: linear-gradient(135deg, var(--visa-blue) 0%, #2d3280 100%);
@@ -1508,6 +1526,7 @@ body {
 
 /* Activity Log */
 .activity-log-container {
+  margin-top: 40rem;
   margin-bottom: 2rem;
 }
 

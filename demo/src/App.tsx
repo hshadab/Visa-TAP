@@ -613,6 +613,20 @@ function App() {
           <span className={`prover-status ${walletBalance && parseFloat(walletBalance) >= 0.01 ? 'online' : 'offline'}`}>
             {walletBalance ? `$${parseFloat(walletBalance).toFixed(2)}` : '...'}
           </span>
+          <button
+            className="copy-wallet-btn"
+            onClick={() => {
+              navigator.clipboard.writeText(demoAccount.address)
+              const btn = document.querySelector('.copy-wallet-btn')
+              if (btn) {
+                btn.textContent = 'Copied!'
+                setTimeout(() => { btn.textContent = `${demoAccount.address.slice(0, 6)}...${demoAccount.address.slice(-4)}` }, 1500)
+              }
+            }}
+            title={demoAccount.address}
+          >
+            {demoAccount.address.slice(0, 6)}...{demoAccount.address.slice(-4)}
+          </button>
         </div>
       </div>
 
@@ -924,7 +938,20 @@ function App() {
                         ) : (
                           <>
                             <p>Identity + Correct inference verified</p>
-                            <p className="arc-confirmed">Anchored on Circle Arc</p>
+                            <p className="arc-confirmed">
+                              {proof.attestationTxHash ? (
+                                <a
+                                  href={`https://testnet.arcscan.app/tx/${proof.attestationTxHash}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="arc-link"
+                                >
+                                  Anchored on Circle Arc ↗
+                                </a>
+                              ) : (
+                                'Anchored on Circle Arc'
+                              )}
+                            </p>
                           </>
                         )}
                       </div>
@@ -1391,7 +1418,7 @@ function App() {
                     <div className="label">Generation Time</div>
                   </div>
                   <div className="proof-stat">
-                    <div className="value">{proof.proofSize}B</div>
+                    <div className="value">~{Math.round((proof.proofSize || 0) / 1000)}KB</div>
                     <div className="label">Proof Size</div>
                   </div>
                   <div className="proof-stat">
@@ -1421,7 +1448,20 @@ function App() {
                   </div>
                   <div className="verification-check">
                     <span className="check-icon">✓</span>
-                    <span className="check-label">Anchored on Circle Arc</span>
+                    <span className="check-label">
+                      {proof.attestationTxHash ? (
+                        <a
+                          href={`https://testnet.arcscan.app/tx/${proof.attestationTxHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="arc-link"
+                        >
+                          Anchored on Circle Arc ↗
+                        </a>
+                      ) : (
+                        'Anchored on Circle Arc'
+                      )}
+                    </span>
                   </div>
                   <div className="verification-check">
                     <span className="check-icon">✓</span>
