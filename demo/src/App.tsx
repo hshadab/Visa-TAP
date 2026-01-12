@@ -794,6 +794,12 @@ function App() {
                           <span>Proof Size:</span>
                           <span>~{Math.round((proof.proofSize || 0) / 1000)}KB SNARK</span>
                         </div>
+                        {proof.isRealTransaction && (
+                          <div className="detail-row agent-row">
+                            <span>Agent ID:</span>
+                            <span className="agent-id-value">{TAP_AGENT_ID.slice(0, 20)}...</span>
+                          </div>
+                        )}
                         {proof.isRealTransaction && proof.attestationTxHash && (
                           <div className="detail-row arc-row">
                             <span>Attestation:</span>
@@ -895,8 +901,19 @@ function App() {
                       <div className="result-icon">✓</div>
                       <div className="result-text">
                         <strong>Full Verification Complete</strong>
-                        <p>Identity + Correct inference verified</p>
-                        <p className="arc-confirmed">Anchored on Circle Arc</p>
+                        {proof.isRealTransaction ? (
+                          <>
+                            <p className="anchored-item"><span className="anchor-check">✓</span> WHO: Agent identity anchored</p>
+                            <p className="anchored-item"><span className="anchor-check">✓</span> WHAT: Transaction inputs anchored</p>
+                            <p className="anchored-item"><span className="anchor-check">✓</span> HOW: Policy proof anchored</p>
+                            <p className="arc-confirmed">All on Circle Arc Testnet</p>
+                          </>
+                        ) : (
+                          <>
+                            <p>Identity + Correct inference verified</p>
+                            <p className="arc-confirmed">Anchored on Circle Arc</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}

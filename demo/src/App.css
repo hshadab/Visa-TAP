@@ -2547,6 +2547,36 @@ body {
   text-decoration: underline;
 }
 
+/* Agent ID display */
+.agent-row {
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(30, 64, 175, 0.05) 100%);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem 0;
+}
+
+.agent-id-value {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--visa-blue);
+  font-weight: 500;
+}
+
+/* Anchored items in verification result */
+.anchored-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+}
+
+.anchor-check {
+  color: var(--success-green);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
 .constraint.fail .constraint-icon {
   color: var(--danger-red);
   font-weight: bold;
